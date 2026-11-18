@@ -1,0 +1,34 @@
+# Local run.
+#   docker compose up -d db      -> only Postgres on localhost:5433 (for `npm run dev` and tests)
+#   docker compose up --build    -> Postgres + the production image of the app on localhost:3000
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fugo
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fugo"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    env_file: .env
+    environment:
+      # Inside the compose network the DB is `db:5432`, not localhost:5433
+      DATABASE_URL: postgres://postgres:postgres@db:5432/fugo
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
