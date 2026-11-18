@@ -3,7 +3,12 @@ import { todayInJakarta } from '#shared/utils/date'
 import { aiRuns, briefs, type Brief } from '../db/schema'
 import { parseAiOutput } from '../lib/ai-output'
 import { callLlm, TransientLlmError, type LlmConfig } from '../lib/llm'
-import { ANALYSIS_SYSTEM_PROMPT, buildAnalysisUserMessage } from '../lib/prompts'
+import {
+  ANALYSIS_SYSTEM_PROMPT,
+  buildAnalysisUserMessage,
+  buildEmailDraftUserMessage,
+  EMAIL_DRAFT_SYSTEM_PROMPT,
+} from '../lib/prompts'
 
 /** A row stuck in `processing` longer than this is assumed lost (crash/restart). */
 export const STUCK_AFTER_MS = 2 * 60_000
@@ -155,5 +160,47 @@ async function markFailed(
   catch (dbError) {
     // If even this fails the row stays `processing`; recoverStuckBriefs() will retry it.
     console.error(`[ai] could not mark brief ${briefId} as failed:`, dbError)
+  }
+}
+
+/**
+ * Bonus: drafts a reply email to the client. Runs synchronously (an admin clicked a
+ * button and waits for it); the result is saved so it survives a page reload.
+ */
+export async function generateEmailDraft(briefId: string): Promise<string> {
+  const env = useEnv()
+  const db = useDb()
+  const brief = await db.query.briefs.findFirst({ where: eq(briefs.id, briefId) })
+  if (!brief) throw createError({ statusCode: 404, statusMessage: 'Not Found', message: 'Brief tidak ditemukan.' })
+
+  if (env.AI_FORCE_FAIL || !env.LLM_API_KEY) {
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Service Unavailable',
+      message: env.AI_FORCE_FAIL ? 'AI dinonaktifkan (AI_FORCE_FAIL).' : 'LLM_API_KEY belum diset di server.',
+    })
+  }
+
+  try {
+    const { content } = await callLlm(
+      { baseURL: env.LLM_BASE_URL, apiKey: env.LLM_API_KEY, model: env.LLM_MODEL, timeoutMs: env.LLM_TIMEOUT_MS },
+      {
+        system: EMAIL_DRAFT_SYSTEM_PROMPT,
+        user: buildEmailDraftUserMessage(brief, brief.aiResult),
+        json: false,
+        maxTokens: 500,
+        temperature: 0.5,
+      },
+    )
+    const draft = content.trim()
+    await db.update(briefs).set({ emailDraft: draft }).where(eq(briefs.id, briefId))
+    return draft
+  }
+  catch (error) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: 'Bad Gateway',
+      message: `Gagal membuat draft email: ${error instanceof Error ? error.message : String(error)}`,
+    })
   }
 }

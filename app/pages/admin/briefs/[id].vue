@@ -149,6 +149,11 @@ async function reprocess() {
             :reprocessing="reprocessing"
             @reprocess="reprocess"
           />
+          <EmailDraftCard
+            v-if="brief.aiStatus === 'completed'"
+            :brief-id="brief.id"
+            :initial-draft="brief.emailDraft"
+          />
         </div>
 
         <aside class="flex min-w-0 flex-[2_1_320px] flex-col gap-6">
