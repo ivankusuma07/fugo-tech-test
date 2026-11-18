@@ -81,6 +81,15 @@ docker compose -f docker-compose.prod.yml up -d
 
 Update after a push: `git pull && docker compose -f docker-compose.prod.yml up -d --build` (migrations run on start). Logs: `docker compose -f docker-compose.prod.yml logs -f app`.
 
+**Server that already has a shared reverse proxy.** When another Caddy already owns 80/443 (one `edge` Docker network, one site file per project), skip the bundled Caddy and use `deploy/docker-compose.edge.yml` instead. It publishes no ports and puts the app on the external `edge` network as `fugo-app`; Postgres stays on the project's private network.
+
+```bash
+cd /opt/fugo                      # repo root, with .env from deploy/env.production.example
+docker compose --env-file .env -f deploy/docker-compose.edge.yml up -d --build
+sed 's/brief.example.com/<your-host>/' deploy/fugo.caddy.example > /opt/edge/sites/fugo.caddy
+docker exec edge-caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+```
+
 ---
 
 ## 2. Architecture
