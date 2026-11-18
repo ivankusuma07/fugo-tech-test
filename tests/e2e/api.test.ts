@@ -93,6 +93,35 @@ describe('admin API protection', () => {
     const res = await fetch('/api/auth/login', json({ ...ADMIN, password: 'wrong-password' }, { method: 'POST' }))
     expect(res.status).toBe(401)
   })
+
+  it('issues a session cookie that expires after 8 hours', async () => {
+    const res = await fetch('/api/auth/login', json(ADMIN, { method: 'POST' }))
+    expect(res.headers.get('set-cookie')).toMatch(/Max-Age=28800/i)
+  })
+
+  it('renders /admin with its data for a logged-in admin (cookie forwarded during SSR)', async () => {
+    await $fetch('/api/briefs', { method: 'POST', body: { ...validBrief, companyName: 'SSR Render Check' } })
+    const res = await fetch('/admin', { headers: { cookie }, redirect: 'manual' })
+    expect(res.status).toBe(200)
+    const html = await res.text()
+    expect(html).toContain('SSR Render Check')
+    expect(html).not.toContain('Silakan login terlebih dahulu')
+  })
+
+  it('rejects a session whose user no longer exists', async () => {
+    // A second user sharing the admin's password hash, logged in, then removed.
+    await query(E2E_DATABASE_URL, `INSERT INTO users (email, password_hash) SELECT 'gone@fugo.test', password_hash FROM users WHERE email = $1`, [ADMIN.email])
+    const login = await fetch('/api/auth/login', json({ ...ADMIN, email: 'gone@fugo.test' }, { method: 'POST' }))
+    expect(login.status).toBe(200)
+    const staleCookie = login.headers.get('set-cookie')!.split(';')[0]!
+    await query(E2E_DATABASE_URL, `DELETE FROM users WHERE email = 'gone@fugo.test'`)
+
+    const api = await fetch('/api/admin/me', { headers: { cookie: staleCookie } })
+    expect(api.status).toBe(401)
+    const page = await fetch('/admin', { headers: { cookie: staleCookie }, redirect: 'manual' })
+    expect([301, 302]).toContain(page.status)
+    expect(page.headers.get('location')).toMatch(/^\/login/)
+  })
 })
 
 describe('admin brief endpoints', () => {

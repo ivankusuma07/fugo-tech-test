@@ -170,9 +170,9 @@ A failed brief shows the error and a "Proses ulang AI" button. `AI_FORCE_FAIL=tr
 - **Category and priority copied out of `ai_result`** into enum columns, so list filters use indexes instead of JSONB queries. `ai_result` stays the full validated record.
 - **Forward-only, one-step pipeline** (`New → Contacted → Proposal → Won/Lost`), enforced on the server with a row lock, every change appended to history. The stepper's checkmarks are therefore always true. Trade-off: no undo for a mis-click (a future "revert" would just be one more allowed transition and history row).
 - **A failed re-run clears the previous AI result**, so what the list shows always matches the latest run; older runs remain in `ai_runs`.
-- **Single admin seeded from env**, sealed-cookie sessions (`nuxt-auth-utils`), no roles. Pages and API are guarded separately.
+- **Single admin seeded from env**, sealed-cookie sessions (`nuxt-auth-utils`) that expire after 8 hours, no roles. Pages and API are guarded separately, and both reject a session whose user no longer exists. A 401 from the admin API sends the browser back to `/login`.
 - **In-memory rate limiter** per IP: fine for one instance; it would move to Postgres/Redis when scaling out.
-- **Plain Tailwind with design tokens** taken from the provided UI design, instead of a component library, so the screens match the reference closely with very little CSS.
+- **Plain Tailwind with design tokens** taken from the provided UI design, instead of a component library, so the screens match the reference closely with very little CSS. Icons come from Lucide (`@lucide/vue`), wrapped in one `AppIcon` component so only the icons in use are bundled.
 
 ## 5. What I'd do next
 
@@ -184,7 +184,7 @@ A failed brief shows the error and a "Proses ulang AI" button. `AI_FORCE_FAIL=tr
 
 ## 6. Libraries & boilerplate
 
-Nuxt 4 (Vue 3, Nitro), Tailwind CSS 4, Drizzle ORM + drizzle-kit, `pg`, Zod 4, nuxt-auth-utils, `openai` SDK, Vitest + @nuxt/test-utils, ESLint (@nuxt/eslint). No starter template; the project was scaffolded by hand. Fonts: Inter and Bricolage Grotesque (Google Fonts).
+Nuxt 4 (Vue 3, Nitro), Tailwind CSS 4, Lucide icons (`@lucide/vue`), Drizzle ORM + drizzle-kit, `pg`, Zod 4, nuxt-auth-utils, `openai` SDK, Vitest + @nuxt/test-utils, ESLint (@nuxt/eslint). No starter template; the project was scaffolded by hand. Fonts: Inter and Bricolage Grotesque (Google Fonts).
 
 ## 7. AI usage log
 

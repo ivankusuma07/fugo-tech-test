@@ -18,6 +18,10 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/css/main.css'],
+  runtimeConfig: {
+    // Sealed sessions have no expiry by default; log admins out after 8 hours.
+    session: { maxAge: 60 * 60 * 8 },
+  },
   compatibilityDate: '2026-11-01',
   vite: {
     plugins: [tailwindcss()],
