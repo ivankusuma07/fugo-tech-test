@@ -51,3 +51,97 @@ textarea:focus {
   outline: 2px solid var(--color-brand);
   outline-offset: 1px;
 }
+
+/* ---- Motion (public form) ---------------------------------------------- */
+
+input,
+textarea {
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 200ms ease;
+}
+input:focus,
+textarea:focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-brand) 14%, transparent);
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.94); }
+  60% { opacity: 1; transform: scale(1.015); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes check-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  55% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes ripple {
+  from { transform: scale(1); opacity: 0.45; }
+  to { transform: scale(1.9); opacity: 0; }
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+@keyframes twinkle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(18deg) scale(1.15); }
+}
+
+/* Entrance with an optional stagger: style="--delay: 120ms" */
+.anim-rise {
+  animation: rise-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--delay, 0ms);
+}
+.anim-pop {
+  animation: pop-in 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--delay, 0ms);
+}
+.anim-check {
+  animation: check-pop 560ms cubic-bezier(0.3, 1.4, 0.5, 1) 180ms both;
+}
+.anim-ripple {
+  animation: ripple 1100ms ease-out 350ms 2 both;
+}
+.anim-slide-down {
+  animation: slide-down 220ms ease-out both;
+}
+.anim-shake {
+  animation: shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+.anim-twinkle {
+  animation: twinkle 2.6s ease-in-out infinite;
+}
+
+/* Form <-> success swap */
+.page-swap-enter-active,
+.page-swap-leave-active {
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+.page-swap-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-swap-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

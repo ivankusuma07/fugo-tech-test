@@ -17,7 +17,7 @@ defineProps<{ label: string, for: string, error?: string, hint?: string, require
     <span
       v-if="error"
       :id="`${$props.for}-err`"
-      class="flex items-center gap-1.5 text-[13px] font-medium text-danger"
+      class="anim-slide-down flex items-center gap-1.5 text-[13px] font-medium text-danger"
     >
       <AppIcon name="alert-circle" />
       {{ error }}
