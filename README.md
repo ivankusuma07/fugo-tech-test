@@ -2,7 +2,7 @@
 
 Internal tool for Fugo Creative. Prospective clients send a project brief through a public form; the sales team sees every brief in a protected dashboard, already summarized, categorized and prioritized by an LLM.
 
-- **Live URL:** https://fugo.185-147-159-149.sslip.io (admin: `/login`)
+- **Live URL:** https://brief-b9939f95.sslip.io (admin: `/login`)
 - **Admin login:** credentials are sent in the submission email (seeded from `ADMIN_EMAIL` / `ADMIN_PASSWORD`).
 
 | Public | Admin |
