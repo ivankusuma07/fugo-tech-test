@@ -1,0 +1,13 @@
+# Brief Inbox site for a shared edge Caddy. Copy to the edge's sites/fugo.caddy,
+# replace the hostname, then reload the edge Caddy. Upstream is the `fugo-app`
+# alias on the "edge" network (deploy/docker-compose.edge.yml).
+brief.example.com {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+	reverse_proxy fugo-app:3000
+}

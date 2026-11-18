@@ -1,0 +1,54 @@
+# Brief Inbox on a server that already has a shared edge Caddy on the external
+# "edge" network (TLS + routing live there; this stack publishes no ports).
+# Run from the repo root (.env lives there):
+#   docker compose --env-file .env -f deploy/docker-compose.edge.yml up -d --build
+# Install deploy/fugo.caddy.example as the edge's sites/fugo.caddy (with the real hostname).
+name: fugo
+
+services:
+  app:
+    build:
+      context: ..
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      DATABASE_URL: postgres://fugo:${POSTGRES_PASSWORD}@db:5432/fugo
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      default:
+      edge:
+        aliases: [fugo-app]
+    mem_limit: 1g
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fugo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: fugo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fugo -d fugo"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [default]
+    mem_limit: 512m
+
+volumes:
+  pgdata:
+
+networks:
+  edge:
+    external: true
+    name: ${EDGE_NETWORK:-edge}
