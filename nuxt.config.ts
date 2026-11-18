@@ -21,6 +21,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Sealed sessions have no expiry by default; log admins out after 8 hours.
     session: { maxAge: 60 * 60 * 8 },
+    public: {
+      // Cloudflare Turnstile site key (NUXT_PUBLIC_TURNSTILE_SITE_KEY). Empty = no widget.
+      turnstileSiteKey: '',
+    },
   },
   compatibilityDate: '2026-11-01',
   vite: {

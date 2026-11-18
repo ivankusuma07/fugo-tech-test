@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
     return { id: null, number: null }
   }
 
+  // Validate first: a request with field errors does not use up the Turnstile token check.
   const input = validateOrThrow(BriefInputSchema, body)
+  await assertTurnstile(event, (body as { turnstileToken?: unknown }).turnstileToken, 'brief')
+
   const brief = await createBrief(input)
 
   // Respond right away; the worker picks the brief up in the background.

@@ -16,6 +16,10 @@ const EnvSchema = z.object({
   AI_WORKER_ENABLED: z.stringbool().default(true),
   AI_FORCE_FAIL: z.stringbool().default(false),
   BRIEF_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(5),
+  // Cloudflare Turnstile on the public form. Unset secret = verification off.
+  TURNSTILE_SECRET_KEY: z.string().optional(),
+  // Comma-separated hostnames a token may come from (empty = any hostname on the widget).
+  TURNSTILE_HOSTNAMES: z.string().default('').transform(v => v.split(',').map(h => h.trim()).filter(Boolean)),
 })
 
 export type Env = z.infer<typeof EnvSchema>

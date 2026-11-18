@@ -21,6 +21,15 @@ const formError = ref<string>()
 const submitting = ref(false)
 const submitted = ref<{ number: number | null, name: string, companyName: string, email: string }>()
 
+// Cloudflare Turnstile (off when no site key is configured).
+const turnstileSiteKey = useRuntimeConfig().public.turnstileSiteKey
+const turnstileToken = ref('')
+const turnstile = useTemplateRef<{ reset: () => void }>('turnstile')
+
+function onTurnstileError(code: string) {
+  formError.value = `Verifikasi keamanan tidak bisa dimuat (kode ${code}). Muat ulang halaman lalu coba lagi.`
+}
+
 const minDate = todayInJakarta()
 const fieldClass = (key: string) =>
   errors.value[key]
@@ -43,18 +52,24 @@ function validate(): boolean {
 async function submit() {
   formError.value = undefined
   if (!validate()) return
+  if (turnstileSiteKey && !turnstileToken.value) {
+    formError.value = 'Selesaikan verifikasi keamanan terlebih dahulu.'
+    return
+  }
 
   submitting.value = true
   try {
     const res = await $fetch<{ id: string | null, number: number | null }>('/api/briefs', {
       method: 'POST',
-      body: form,
+      body: { ...form, turnstileToken: turnstileToken.value || undefined },
     })
     submitted.value = { number: res.number, name: form.name, companyName: form.companyName, email: form.email }
   }
   catch (error) {
     errors.value = getApiFieldErrors(error)
     formError.value = getApiErrorMessage(error)
+    // The token is single-use: get a fresh one for the next attempt.
+    turnstile.value?.reset()
   }
   finally {
     submitting.value = false
@@ -316,6 +331,16 @@ function reset() {
             autocomplete="off"
           >
         </div>
+
+        <ClientOnly v-if="turnstileSiteKey">
+          <TurnstileWidget
+            ref="turnstile"
+            v-model="turnstileToken"
+            :site-key="turnstileSiteKey"
+            action="brief"
+            @error="onTurnstileError"
+          />
+        </ClientOnly>
 
         <div
           v-if="formError"

@@ -58,6 +58,9 @@ npm run test:unit             # pure unit tests only, no database needed
 | `AI_WORKER_ENABLED` | | `true` | Turn the in-process worker off (used by e2e tests) |
 | `AI_FORCE_FAIL` | | `false` | Demo: every analysis fails validation, to show the failed → reprocess path |
 | `BRIEF_RATE_LIMIT_PER_MINUTE` | | `5` | Public form submissions per IP per minute |
+| `NUXT_PUBLIC_TURNSTILE_SITE_KEY` | | | Cloudflare Turnstile site key. Set it to show the widget on the public form |
+| `TURNSTILE_SECRET_KEY` | | | Turnstile secret key. Set it to require a valid token on `POST /api/briefs` (checked with siteverify) |
+| `TURNSTILE_HOSTNAMES` | | | Comma-separated hostnames a token may come from, e.g. `brief.example.com`. Do not list localhost in production |
 
 ### Deploying (Railway)
 
@@ -156,7 +159,7 @@ All errors share one shape: `{ statusCode, message, data?: { fieldErrors: { fiel
 
 | Method | Route | Auth | Result |
 |---|---|---|---|
-| POST | `/api/briefs` | public, rate-limited, honeypot | `201 { id, number }` / `400` / `429` |
+| POST | `/api/briefs` | public, rate-limited, honeypot, Turnstile (when configured) | `201 { id, number }` / `400` / `403` (Turnstile) / `429` |
 | POST | `/api/auth/login` | public, rate-limited | `200` + session cookie / `401` |
 | POST | `/api/auth/logout` | | `204` |
 | GET | `/api/admin/briefs?priority=&category=&pipeline=&page=&pageSize=` | admin | `{ items, total, page, pageSize, stats }`; `pageSize` is 5, 10 (default), 25, 50, 100 or `all` (returned as `null`) |
