@@ -36,38 +36,47 @@ async function login() {
 
 <template>
   <div class="flex min-h-screen flex-wrap bg-canvas">
-    <aside class="flex min-w-0 flex-[1_1_420px] flex-col justify-between gap-12 bg-ink p-8 text-canvas sm:p-12">
+    <aside class="relative flex min-w-0 flex-[1_1_420px] flex-col justify-between gap-12 overflow-hidden bg-ink bg-[radial-gradient(#2E3038_1px,transparent_1px)] bg-size-[22px_22px] p-8 text-canvas sm:p-12">
       <AppLogo
         label="Brief Inbox"
         inverted
         class="anim-rise"
       />
-      <div
-        class="anim-rise flex max-w-[460px] flex-col gap-5"
-        style="--delay: 100ms"
-      >
-        <h1 class="font-display text-[34px] leading-[1.05] font-bold tracking-[-0.025em] sm:text-[44px]">
-          Semua brief masuk, sudah diringkas dan diprioritaskan.
+      <div class="flex max-w-[480px] flex-col gap-5">
+        <span
+          class="anim-rise inline-flex items-center gap-2 self-start rounded-full border border-[#33363E] px-3 py-1 font-mono text-[11px] tracking-[0.08em] text-[#B9BBC2] uppercase"
+          style="--delay: 60ms"
+        >
+          <span class="relative flex size-2">
+            <span class="absolute inline-flex size-full animate-ping rounded-full bg-ok-dot opacity-60" />
+            <span class="relative inline-flex size-2 rounded-full bg-ok-dot" />
+          </span>
+          AI aktif · brief diproses otomatis
+        </span>
+        <h1 class="font-display text-[34px] leading-[1.12] font-bold tracking-[-0.025em] sm:text-[44px]">
+          <span class="sr-only">Semua brief masuk, sudah diringkas, diprioritaskan, dan dikategorikan.</span>
+          <span
+            aria-hidden="true"
+            class="anim-rise block"
+            style="--delay: 120ms"
+          >Semua brief masuk,</span>
+          <span
+            aria-hidden="true"
+            class="anim-rise block"
+            style="--delay: 200ms"
+          >sudah <RotatingWord :words="['diringkas', 'diprioritaskan', 'dikategorikan']" />.</span>
         </h1>
-        <p class="text-base leading-relaxed text-[#B9BBC2]">
+        <p
+          class="anim-rise text-base leading-relaxed text-[#B9BBC2]"
+          style="--delay: 280ms"
+        >
           Ringkasan, kategori, dan prioritas dibuat AI begitu brief masuk. Tim sales tinggal menindaklanjuti.
         </p>
       </div>
-      <div
-        aria-hidden="true"
-        class="anim-pop flex max-w-[420px] flex-col gap-3 rounded-2xl border border-[#33363E] bg-[#23252B] p-[18px]"
-        style="--delay: 260ms"
-      >
-        <div class="flex items-center justify-between gap-3">
-          <span class="text-sm font-semibold">PT Sinar Kopi Nusantara</span>
-          <span class="rounded-full bg-[#3A2220] px-2.5 py-1 text-xs font-semibold text-[#FFB4AB]">High</span>
-        </div>
-        <span class="text-[13px] leading-normal text-[#B9BBC2]">Website company profile + katalog produk kopi, butuh live sebelum peluncuran produk baru.</span>
-        <div class="flex gap-2">
-          <span class="rounded-full border border-[#3D4048] px-2.5 py-1 text-xs text-[#D9DAE0]">Website</span>
-          <span class="rounded-full border border-[#3D4048] px-2.5 py-1 text-xs text-[#D9DAE0]">Rp25–50 jt</span>
-        </div>
-      </div>
+      <LoginBriefDeck
+        class="anim-pop"
+        style="--delay: 360ms"
+      />
     </aside>
 
     <main class="flex min-w-0 flex-[1_1_480px] items-center justify-center px-4 py-12 sm:px-8">

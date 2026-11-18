@@ -96,6 +96,15 @@ textarea:focus {
   50% { transform: rotate(18deg) scale(1.15); }
 }
 
+@keyframes stamp {
+  0% { opacity: 0; transform: scale(2.2) rotate(-18deg); }
+  60% { opacity: 1; transform: scale(0.92) rotate(-4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-6deg); }
+}
+.anim-stamp {
+  animation: stamp 420ms cubic-bezier(0.3, 1.3, 0.5, 1) 250ms both;
+}
+
 /* Entrance with an optional stagger: style="--delay: 120ms" */
 .anim-rise {
   animation: rise-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
