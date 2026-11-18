@@ -80,7 +80,7 @@ function reset() {
       <div class="flex flex-col items-center gap-5 rounded-3xl border border-line bg-white px-6 py-12 text-center shadow-[0_1px_2px_rgba(23,24,28,0.04),0_12px_32px_-12px_rgba(23,24,28,0.12)] sm:px-10">
         <div class="flex size-[72px] items-center justify-center rounded-full bg-ok-soft text-ok">
           <AppIcon
-            name="check"
+            name="badge-check"
             :size="34"
             :stroke-width="2.2"
           />
@@ -99,7 +99,11 @@ function reset() {
             v-if="submitted.number"
             class="flex flex-col gap-1 rounded-[14px] bg-canvas px-4 py-3.5"
           >
-            <dt class="text-xs font-semibold tracking-[0.04em] text-muted uppercase">
+            <dt class="flex items-center gap-1.5 text-xs font-semibold tracking-[0.04em] text-muted uppercase">
+              <AppIcon
+                name="file-text"
+                :size="13"
+              />
               Nomor brief
             </dt>
             <dd class="text-[15px] font-semibold tabular-nums">
@@ -107,7 +111,11 @@ function reset() {
             </dd>
           </div>
           <div class="flex flex-col gap-1 rounded-[14px] bg-canvas px-4 py-3.5">
-            <dt class="text-xs font-semibold tracking-[0.04em] text-muted uppercase">
+            <dt class="flex items-center gap-1.5 text-xs font-semibold tracking-[0.04em] text-muted uppercase">
+              <AppIcon
+                name="mail"
+                :size="13"
+              />
               Konfirmasi ke
             </dt>
             <dd class="truncate text-[15px] font-semibold">
@@ -119,9 +127,10 @@ function reset() {
         <div class="mt-3 flex flex-wrap justify-center gap-3">
           <button
             type="button"
-            class="inline-flex h-[46px] items-center rounded-xl border border-line-strong bg-white px-5 text-[15px] font-semibold"
+            class="inline-flex h-[46px] cursor-pointer items-center gap-2 rounded-xl border border-line-strong bg-white px-5 text-[15px] font-semibold"
             @click="reset"
           >
+            <AppIcon name="send" />
             Kirim brief lain
           </button>
         </div>
@@ -134,7 +143,13 @@ function reset() {
       class="mx-auto flex max-w-[1200px] flex-wrap items-start gap-14 px-4 pt-6 pb-20 sm:px-8"
     >
       <section class="flex min-w-0 flex-[1_1_360px] flex-col gap-7 pt-6">
-        <span class="self-start rounded-full bg-brand-soft px-3 py-1.5 text-[13px] font-semibold text-brand">Mulai proyek baru</span>
+        <span class="inline-flex items-center gap-1.5 self-start rounded-full bg-brand-soft px-3 py-1.5 text-[13px] font-semibold text-brand">
+          <AppIcon
+            name="sparkle"
+            :size="14"
+          />
+          Mulai proyek baru
+        </span>
         <h1 class="font-display text-[40px] leading-[1.02] font-bold tracking-[-0.03em] sm:text-[56px]">
           Ceritakan proyekmu, kami yang susun langkahnya.
         </h1>
@@ -144,14 +159,20 @@ function reset() {
         <ol class="mt-2 flex flex-col gap-[18px]">
           <li
             v-for="(step, i) in [
-              ['Kirim brief', 'Cukup 2 menit, tanpa perlu akun.'],
-              ['Tim kami meninjau', 'Kami pelajari kebutuhan, budget, dan timeline-mu.'],
-              ['Kami menghubungimu', 'Lewat email untuk diskusi lebih lanjut.'],
+              ['Kirim brief', 'Cukup 2 menit, tanpa perlu akun.', 'send'] as const,
+              ['Tim kami meninjau', 'Kami pelajari kebutuhan, budget, dan timeline-mu.', 'list-checks'] as const,
+              ['Kami menghubungimu', 'Lewat email untuk diskusi lebih lanjut.', 'mail'] as const,
             ]"
             :key="i"
             class="flex items-start gap-3.5"
           >
-            <span class="flex size-[30px] flex-none items-center justify-center rounded-full border-[1.5px] border-ink text-[13px] font-semibold">{{ i + 1 }}</span>
+            <span class="flex size-9 flex-none items-center justify-center rounded-full bg-white text-brand shadow-[0_0_0_1.5px_var(--color-ink)]">
+              <AppIcon
+                :name="step[2]"
+                :size="16"
+              />
+              <span class="sr-only">Langkah {{ i + 1 }}</span>
+            </span>
             <div class="flex flex-col gap-0.5">
               <strong class="text-[15px] font-semibold">{{ step[0] }}</strong>
               <span class="text-sm text-muted">{{ step[1] }}</span>

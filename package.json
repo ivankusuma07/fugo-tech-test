@@ -16,6 +16,7 @@
     "db:migrate": "node --env-file-if-exists=.env scripts/migrate.mjs"
   },
   "dependencies": {
+    "@lucide/vue": "1.67.0",
     "@tailwindcss/vite": "^4.3.5",
     "drizzle-orm": "^0.45.4",
     "nuxt": "^4.6.4",

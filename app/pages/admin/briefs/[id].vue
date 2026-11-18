@@ -3,10 +3,11 @@ import { PIPELINE_TRANSITIONS, type PipelineStatus } from '#shared/constants'
 
 definePageMeta({ layout: 'admin' })
 
+const { $api } = useNuxtApp()
 const route = useRoute()
 const id = route.params.id as string
 
-const { data, error, refresh } = await useFetch(`/api/admin/briefs/${id}`)
+const { data, error, refresh } = await useFetch(`/api/admin/briefs/${id}`, { $fetch: $api })
 const brief = computed(() => data.value?.brief)
 
 useHead({ title: () => `${brief.value?.companyName ?? 'Detail brief'} — Brief Inbox` })
@@ -32,7 +33,7 @@ async function changeStatus(to: PipelineStatus) {
   statusBusy.value = true
   statusError.value = undefined
   try {
-    await $fetch(`/api/admin/briefs/${id}/status`, { method: 'PATCH', body: { pipelineStatus: to } })
+    await $api(`/api/admin/briefs/${id}/status`, { method: 'PATCH', body: { pipelineStatus: to } })
     await refresh()
   }
   catch (e) {
@@ -52,7 +53,7 @@ async function reprocess() {
   reprocessing.value = true
   reprocessError.value = undefined
   try {
-    await $fetch(`/api/admin/briefs/${id}/reprocess`, { method: 'POST' })
+    await $api(`/api/admin/briefs/${id}/reprocess`, { method: 'POST' })
     await refresh()
   }
   catch (e) {
@@ -94,14 +95,22 @@ async function reprocess() {
             :priority="brief.priority"
             placeholder="Prioritas —"
           />
-          <span class="inline-flex h-[26px] items-center rounded-full border border-line-strong px-2.5 text-[13px] font-medium">
+          <span class="inline-flex h-[26px] items-center gap-1 rounded-full border border-line-strong px-2.5 text-[13px] font-medium">
+            <AppIcon
+              name="tag"
+              :size="13"
+            />
             {{ brief.serviceCategory ?? 'Kategori —' }}
           </span>
         </div>
         <h1 class="font-display text-[28px] font-bold tracking-[-0.02em] sm:text-[34px]">
           {{ brief.companyName }}
         </h1>
-        <span class="text-sm text-muted">
+        <span class="flex items-center gap-1.5 text-sm text-muted">
+          <AppIcon
+            name="calendar-clock"
+            :size="15"
+          />
           {{ formatBriefNumber(brief.number) }} · Masuk {{ formatDateTime(brief.createdAt) }} WIB
         </span>
       </header>
@@ -113,8 +122,13 @@ async function reprocess() {
         <div class="flex flex-col gap-0.5">
           <h2
             id="pipe-h"
-            class="text-[15px] font-semibold"
+            class="flex items-center gap-2 text-[15px] font-semibold"
           >
+            <AppIcon
+              name="workflow"
+              :size="18"
+              class="text-muted"
+            />
             Status pipeline
           </h2>
           <span

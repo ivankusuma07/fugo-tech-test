@@ -29,8 +29,13 @@ function tone(status: PipelineStatus) {
     <div class="flex items-center justify-between gap-3">
       <h2
         id="hist-h"
-        class="text-base font-semibold"
+        class="flex items-center gap-2 text-base font-semibold"
       >
+        <AppIcon
+          name="history"
+          :size="18"
+          class="text-muted"
+        />
         Riwayat status pipeline
       </h2>
       <span class="text-[13px] text-muted">{{ changeCount }} perubahan</span>

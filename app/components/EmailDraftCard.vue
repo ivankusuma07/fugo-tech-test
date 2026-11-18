@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{ briefId: string, initialDraft: string | null }>()
+const { $api } = useNuxtApp()
 
 const draft = ref(props.initialDraft)
 const generating = ref(false)
@@ -10,7 +11,7 @@ async function generate() {
   generating.value = true
   error.value = undefined
   try {
-    const res = await $fetch<{ emailDraft: string }>(`/api/admin/briefs/${props.briefId}/email-draft`, { method: 'POST' })
+    const res = await $api<{ emailDraft: string }>(`/api/admin/briefs/${props.briefId}/email-draft`, { method: 'POST' })
     draft.value = res.emailDraft
   }
   catch (e) {
@@ -38,8 +39,13 @@ async function copy() {
       <div class="flex items-center gap-2.5">
         <h2
           id="draft-h"
-          class="text-base font-semibold"
+          class="flex items-center gap-2 text-base font-semibold"
         >
+          <AppIcon
+            name="mail"
+            :size="18"
+            class="text-muted"
+          />
           Draft email balasan
         </h2>
         <span class="rounded-full bg-brand-soft px-2 py-[3px] text-xs font-semibold text-brand-ink">Nilai tambah</span>
@@ -48,9 +54,10 @@ async function copy() {
         <button
           v-if="draft"
           type="button"
-          class="h-10 cursor-pointer rounded-[10px] border border-line-strong bg-white px-3.5 text-sm font-semibold"
+          class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[10px] border border-line-strong bg-white px-3.5 text-sm font-semibold"
           @click="copy"
         >
+          <AppIcon :name="copied ? 'check' : 'copy'" />
           {{ copied ? 'Tersalin' : 'Salin' }}
         </button>
         <button
@@ -59,10 +66,7 @@ async function copy() {
           class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[10px] bg-ink px-3.5 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-70"
           @click="generate"
         >
-          <AppIcon
-            v-if="generating"
-            name="spinner"
-          />
+          <AppIcon :name="generating ? 'spinner' : (draft ? 'refresh' : 'mail-plus')" />
           {{ draft ? 'Buat ulang' : 'Buat draft' }}
         </button>
       </div>

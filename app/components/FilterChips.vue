@@ -1,6 +1,8 @@
 <script setup lang="ts" generic="T extends string">
 /** A row of single-select chips. `undefined` means "Semua" (no filter). */
-defineProps<{ label: string, options: readonly T[] }>()
+import type { IconName } from './AppIcon.vue'
+
+defineProps<{ label: string, options: readonly T[], icon?: IconName }>()
 const model = defineModel<T | undefined>()
 </script>
 
@@ -10,7 +12,14 @@ const model = defineModel<T | undefined>()
     :aria-label="`Filter ${label.toLowerCase()}`"
     class="flex flex-wrap items-center gap-2"
   >
-    <span class="w-[76px] text-[13px] font-semibold text-muted">{{ label }}</span>
+    <span class="flex w-[92px] items-center gap-1.5 text-[13px] font-semibold text-muted">
+      <AppIcon
+        v-if="icon"
+        :name="icon"
+        :size="14"
+      />
+      {{ label }}
+    </span>
     <button
       v-for="opt in [undefined, ...options]"
       :key="opt ?? 'all'"

@@ -18,13 +18,22 @@ defineProps<{
   >
     <h2
       id="form-h"
-      class="text-base font-semibold"
+      class="flex items-center gap-2 text-base font-semibold"
     >
+      <AppIcon
+        name="file-text"
+        :size="18"
+        class="text-muted"
+      />
       Data dari form
     </h2>
     <dl class="flex flex-col gap-3.5">
       <div class="flex flex-col gap-0.5">
-        <dt class="text-[13px] text-muted">
+        <dt class="flex items-center gap-1.5 text-[13px] text-muted">
+          <AppIcon
+            name="user"
+            :size="14"
+          />
           Nama
         </dt>
         <dd class="text-[15px] font-medium">
@@ -32,7 +41,11 @@ defineProps<{
         </dd>
       </div>
       <div class="flex flex-col gap-0.5">
-        <dt class="text-[13px] text-muted">
+        <dt class="flex items-center gap-1.5 text-[13px] text-muted">
+          <AppIcon
+            name="mail"
+            :size="14"
+          />
           Email
         </dt>
         <dd class="text-[15px] font-medium break-all">
@@ -43,7 +56,11 @@ defineProps<{
         </dd>
       </div>
       <div class="flex flex-col gap-0.5">
-        <dt class="text-[13px] text-muted">
+        <dt class="flex items-center gap-1.5 text-[13px] text-muted">
+          <AppIcon
+            name="building"
+            :size="14"
+          />
           Perusahaan
         </dt>
         <dd class="text-[15px] font-medium">
@@ -52,7 +69,11 @@ defineProps<{
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div class="flex flex-col gap-0.5">
-          <dt class="text-[13px] text-muted">
+          <dt class="flex items-center gap-1.5 text-[13px] text-muted">
+            <AppIcon
+              name="banknote"
+              :size="14"
+            />
             Budget
           </dt>
           <dd class="text-[15px] font-medium">
@@ -60,7 +81,11 @@ defineProps<{
           </dd>
         </div>
         <div class="flex flex-col gap-0.5">
-          <dt class="text-[13px] text-muted">
+          <dt class="flex items-center gap-1.5 text-[13px] text-muted">
+            <AppIcon
+              name="calendar"
+              :size="14"
+            />
             Target timeline
           </dt>
           <dd class="text-[15px] font-medium">
@@ -69,7 +94,11 @@ defineProps<{
         </div>
       </div>
       <div class="flex flex-col gap-1.5">
-        <dt class="text-[13px] text-muted">
+        <dt class="flex items-center gap-1.5 text-[13px] text-muted">
+          <AppIcon
+            name="message"
+            :size="14"
+          />
           Jenis kebutuhan
         </dt>
         <dd class="rounded-[10px] border border-line-soft bg-subtle px-3.5 py-3 text-sm leading-relaxed whitespace-pre-line">

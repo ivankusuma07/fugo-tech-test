@@ -4,6 +4,7 @@ import { PRIORITIES, SERVICE_CATEGORIES, type Priority, type ServiceCategory } f
 definePageMeta({ layout: 'admin' })
 useHead({ title: 'Brief masuk — Brief Inbox' })
 
+const { $api } = useNuxtApp()
 const route = useRoute()
 const router = useRouter()
 
@@ -28,13 +29,14 @@ function updateQuery(patch: Record<string, string | number | undefined>) {
 
 const { data, error, refresh, status } = await useFetch('/api/admin/briefs', {
   query: { priority, category, page },
+  $fetch: $api,
 })
 
 const stats = computed(() => [
-  { label: 'Total brief', value: data.value?.stats.total ?? 0, danger: false },
-  { label: 'Prioritas High', value: data.value?.stats.high ?? 0, danger: true },
-  { label: 'Belum dihubungi', value: data.value?.stats.notContacted ?? 0, danger: false },
-  { label: 'AI gagal, perlu diproses ulang', value: data.value?.stats.aiFailed ?? 0, danger: true },
+  { label: 'Total brief', value: data.value?.stats.total ?? 0, danger: false, icon: 'inbox' as const },
+  { label: 'Prioritas High', value: data.value?.stats.high ?? 0, danger: true, icon: 'flame' as const },
+  { label: 'Belum dihubungi', value: data.value?.stats.notContacted ?? 0, danger: false, icon: 'phone-off' as const },
+  { label: 'AI gagal, perlu diproses ulang', value: data.value?.stats.aiFailed ?? 0, danger: true, icon: 'alert-triangle' as const },
 ])
 
 const items = computed(() => data.value?.items ?? [])
@@ -72,7 +74,18 @@ usePolling(hasRunningAi, refresh, 3000)
         :key="s.label"
         class="flex min-w-0 flex-col gap-1.5 rounded-[14px] border border-line bg-white px-[18px] py-4"
       >
-        <span class="text-[13px] text-muted">{{ s.label }}</span>
+        <div class="flex items-start justify-between gap-2">
+          <span class="text-[13px] text-muted">{{ s.label }}</span>
+          <span
+            class="flex size-8 flex-none items-center justify-center rounded-lg"
+            :class="s.danger && s.value > 0 ? 'bg-danger-soft text-danger' : 'bg-brand-soft text-brand'"
+          >
+            <AppIcon
+              :name="s.icon"
+              :size="16"
+            />
+          </span>
+        </div>
         <span
           class="font-display text-[30px] font-bold tracking-[-0.02em] tabular-nums"
           :class="s.danger && s.value > 0 ? 'text-danger' : 'text-ink'"
@@ -88,11 +101,13 @@ usePolling(hasRunningAi, refresh, 3000)
         <FilterChips
           v-model="priority"
           label="Prioritas"
+          icon="flame"
           :options="PRIORITIES"
         />
         <FilterChips
           v-model="category"
           label="Kategori"
+          icon="tag"
           :options="SERVICE_CATEGORIES"
         />
       </div>
@@ -193,6 +208,12 @@ usePolling(hasRunningAi, refresh, 3000)
         v-if="!error && status !== 'pending' && items.length === 0"
         class="flex flex-col items-center gap-2 px-5 py-12 text-center"
       >
+        <span class="mb-1 flex size-12 items-center justify-center rounded-full bg-subtle text-muted">
+          <AppIcon
+            :name="priority || category ? 'filter' : 'inbox'"
+            :size="22"
+          />
+        </span>
         <template v-if="priority || category">
           <span class="text-[15px] font-semibold">Tidak ada brief untuk filter ini</span>
           <span class="text-sm text-muted">Coba ubah prioritas atau kategori.</span>
@@ -209,18 +230,20 @@ usePolling(hasRunningAi, refresh, 3000)
           <button
             type="button"
             :disabled="page <= 1"
-            class="h-9 cursor-pointer rounded-lg border border-line-strong bg-white px-3 font-medium text-ink disabled:cursor-default disabled:border-line disabled:text-faint"
+            class="inline-flex h-9 cursor-pointer items-center gap-1 rounded-lg border border-line-strong bg-white px-3 font-medium text-ink disabled:cursor-default disabled:border-line disabled:text-faint"
             @click="updateQuery({ page: page - 1 })"
           >
+            <AppIcon name="chevron-left" />
             Sebelumnya
           </button>
           <button
             type="button"
             :disabled="page >= totalPages"
-            class="h-9 cursor-pointer rounded-lg border border-line-strong bg-white px-3 font-medium text-ink disabled:cursor-default disabled:border-line disabled:text-faint"
+            class="inline-flex h-9 cursor-pointer items-center gap-1 rounded-lg border border-line-strong bg-white px-3 font-medium text-ink disabled:cursor-default disabled:border-line disabled:text-faint"
             @click="updateQuery({ page: page + 1 })"
           >
             Berikutnya
+            <AppIcon name="chevron-right" />
           </button>
         </div>
       </div>

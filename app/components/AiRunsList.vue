@@ -28,8 +28,13 @@ function failureLabel(error: string | null): string {
   >
     <h2
       id="runs-h"
-      class="text-base font-semibold"
+      class="flex items-center gap-2 text-base font-semibold"
     >
+      <AppIcon
+        name="bot"
+        :size="18"
+        class="text-muted"
+      />
       Riwayat proses AI
     </h2>
     <p
@@ -47,10 +52,11 @@ function failureLabel(error: string | null): string {
         :key="r.id"
         class="flex items-start gap-3"
       >
-        <span
-          aria-hidden="true"
-          class="mt-1.5 size-2 flex-none rounded-full"
-          :class="r.status === 'success' ? 'bg-ok-dot' : 'bg-danger-dot'"
+        <AppIcon
+          :name="r.status === 'success' ? 'circle-check' : 'circle-x'"
+          :size="16"
+          class="mt-0.5 flex-none"
+          :class="r.status === 'success' ? 'text-ok' : 'text-danger'"
         />
         <div class="flex flex-col gap-0.5 text-sm">
           <span class="font-semibold">
