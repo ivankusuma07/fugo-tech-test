@@ -15,6 +15,7 @@ const EnvSchema = z.object({
   AI_WORKER_INTERVAL_MS: z.coerce.number().int().positive().default(3_000),
   AI_WORKER_ENABLED: z.stringbool().default(true),
   AI_FORCE_FAIL: z.stringbool().default(false),
+  BRIEF_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(5),
 })
 
 export type Env = z.infer<typeof EnvSchema>

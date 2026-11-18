@@ -3,7 +3,7 @@ import { nudgeAiWorker } from '../../services/ai-worker'
 import { createBrief } from '../../services/brief.service'
 
 export default defineEventHandler(async (event) => {
-  assertRateLimit(event, 'create-brief', 5, 60_000)
+  assertRateLimit(event, 'create-brief', useEnv().BRIEF_RATE_LIMIT_PER_MINUTE, 60_000)
 
   const body = await readBody(event).catch(() => undefined)
 
