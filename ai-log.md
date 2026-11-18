@@ -118,7 +118,7 @@ Tool: **Claude Code** (CLI agent, model Claude Opus 5.5), working in this repo w
 
 ---
 
-## Session 3 — Fixes, deployment & polish (Wed 18 Nov 2026, 14:18–16:49 WIB)
+## Session 3 — Fixes, deployment & polish (Wed 18 Nov 2026, 14:18 – Thu 19 Nov 06:19 WIB)
 
 Tool: **Claude Code** (CLI agent, model Claude Opus 5.5), same repo. Times are commit times.
 
@@ -134,7 +134,9 @@ Tool: **Claude Code** (CLI agent, model Claude Opus 5.5), same repo. Times are c
 | 15:21–15:28 | Change the live URL; "Hex, joined with a dash" | New host `brief-b9939f95.sslip.io`; the old host 301-redirects | Accepted. Both hosts checked with curl |
 | 15:49 | Integrate the existing Cloudflare Turnstile widget (site key given), place it on the form | Explicit-render widget on the form; server `siteverify` with a 10 s timeout that fails closed, plus action and optional hostname checks; 11 unit tests | Accepted after corrections C11 and C12 |
 | 16:10–16:49 | Animations on the form, admin and login pages; login cards that auto-change like a reference site | Staggered entrances, form↔success transition, count-up stats, AI card crossfade, rotating headline word, an auto-cycling deck of sample brief cards. All motion is off under `prefers-reduced-motion` | Accepted. Clicked through in Chrome on a local production build |
-| 15:05–16:49 | "push it" / "push and deploy" (several times) | Pushed `main`; deployed with `git archive` over SSH and `docker compose up --build` on the server | Done. Health check, then curl checks of the live pages after each deploy |
+| 15:05 onward | "push it" / "push and deploy" (several times) | Pushed `main`; deployed with `git archive` over SSH and `docker compose up --build` on the server | Done. Health check, then curl checks of the live pages after each deploy |
+| Thu 06:04 | "add this ai usage log to the readme" | This Session 3 log, in README section 7 and `ai-log.md` | Accepted, pushed |
+| Thu 06:19 | Add a favicon | The logo mark as `favicon.svg`, plus `favicon.ico` (16/32/48 px) and a 180 px `apple-touch-icon.png`, all made by a dependency-free script (`scripts/make-favicons.mjs`); head links and `theme-color` | Accepted. Checked the rendered icon, then each file's status and content type on a local build and on the live site after deploy |
 
 ### Corrections and rejections
 
