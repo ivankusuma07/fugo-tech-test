@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Design tokens taken from the UI design reference */
+@theme {
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque', sans-serif;
+
+  --color-ink: #17181C;
+  --color-ink-2: #33353B;
+  --color-muted: #5C5F66;
+  --color-faint: #8A8D94;
+  --color-canvas: #F6F5F2;
+  --color-subtle: #FAFAF8;
+  --color-line: #E4E2DC;
+  --color-line-soft: #EEECE7;
+  --color-line-strong: #D6D3CC;
+
+  --color-brand: #3446D4;
+  --color-brand-ink: #2433A8;
+  --color-brand-soft: #ECEEFD;
+
+  --color-danger: #B42318;
+  --color-danger-ink: #8F1D14;
+  --color-danger-dot: #D92D20;
+  --color-danger-soft: #FEF0EE;
+  --color-danger-tint: #FFF8F7;
+
+  --color-warn: #8A5300;
+  --color-warn-soft: #FFF4DB;
+
+  --color-ok: #0F6B3E;
+  --color-ok-dot: #16A061;
+  --color-ok-soft: #E7F6EE;
+
+  --color-neutral-soft: #EEF0F3;
+  --color-neutral-ink: #3F4652;
+}
+
+body {
+  @apply bg-canvas text-ink font-sans antialiased;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 1px;
+}
