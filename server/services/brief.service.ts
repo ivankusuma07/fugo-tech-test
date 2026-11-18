@@ -1,7 +1,14 @@
-import { and, count, desc, eq, sql } from 'drizzle-orm'
-import type { Priority, ServiceCategory } from '#shared/constants'
+import { and, count, desc, eq, inArray, sql } from 'drizzle-orm'
+import {
+  canTransition,
+  PIPELINE_LABELS,
+  PIPELINE_TRANSITIONS,
+  type PipelineStatus,
+  type Priority,
+  type ServiceCategory,
+} from '#shared/constants'
 import type { BriefInput } from '#shared/schemas/brief-input'
-import { briefs, pipelineStatusHistory } from '../db/schema'
+import { aiRuns, briefs, pipelineStatusHistory, users } from '../db/schema'
 
 /**
  * Saves the brief first, always. AI processing happens afterwards in the
@@ -76,4 +83,91 @@ export async function getBriefStats() {
     })
     .from(briefs)
   return row!
+}
+
+export async function getBriefDetail(id: string) {
+  const db = useDb()
+  const brief = await db.query.briefs.findFirst({ where: eq(briefs.id, id) })
+  if (!brief) throw notFound()
+
+  const [runs, history] = await Promise.all([
+    db
+      .select()
+      .from(aiRuns)
+      .where(eq(aiRuns.briefId, id))
+      .orderBy(desc(aiRuns.createdAt))
+      .limit(10),
+    db
+      .select({
+        id: pipelineStatusHistory.id,
+        fromStatus: pipelineStatusHistory.fromStatus,
+        toStatus: pipelineStatusHistory.toStatus,
+        changedByEmail: users.email, // null = system
+        createdAt: pipelineStatusHistory.createdAt,
+      })
+      .from(pipelineStatusHistory)
+      .leftJoin(users, eq(users.id, pipelineStatusHistory.changedBy))
+      .where(eq(pipelineStatusHistory.briefId, id))
+      .orderBy(desc(pipelineStatusHistory.createdAt)),
+  ])
+
+  return { brief, aiRuns: runs, history }
+}
+
+/**
+ * Moves the brief one step forward in the pipeline and records who did it.
+ * The row lock makes the check-then-write safe against double clicks / two tabs.
+ */
+export async function updatePipelineStatus(id: string, to: PipelineStatus, userId: string) {
+  return useDb().transaction(async (tx) => {
+    const [current] = await tx
+      .select({ pipelineStatus: briefs.pipelineStatus })
+      .from(briefs)
+      .where(eq(briefs.id, id))
+      .for('update')
+    if (!current) throw notFound()
+
+    const from = current.pipelineStatus
+    if (!canTransition(from, to)) {
+      const allowed = PIPELINE_TRANSITIONS[from].map(s => PIPELINE_LABELS[s]).join(' / ')
+      throw createError({
+        statusCode: 409,
+        statusMessage: 'Conflict',
+        message: allowed
+          ? `Status tidak bisa diubah dari ${PIPELINE_LABELS[from]} ke ${PIPELINE_LABELS[to]}. Langkah berikutnya: ${allowed}.`
+          : `Status ${PIPELINE_LABELS[from]} sudah final dan tidak bisa diubah.`,
+      })
+    }
+
+    await tx.update(briefs).set({ pipelineStatus: to }).where(eq(briefs.id, id))
+    const [entry] = await tx
+      .insert(pipelineStatusHistory)
+      .values({ briefId: id, fromStatus: from, toStatus: to, changedBy: userId })
+      .returning()
+
+    return { pipelineStatus: to, historyEntry: entry! }
+  })
+}
+
+/** Sends a finished (completed or failed) brief back to the AI queue. */
+export async function requeueBrief(id: string) {
+  const db = useDb()
+  const [row] = await db
+    .update(briefs)
+    .set({ aiStatus: 'pending', aiError: null })
+    .where(and(eq(briefs.id, id), inArray(briefs.aiStatus, ['completed', 'failed'])))
+    .returning({ id: briefs.id, aiStatus: briefs.aiStatus })
+  if (row) return row
+
+  const exists = await db.query.briefs.findFirst({ where: eq(briefs.id, id), columns: { id: true } })
+  if (!exists) throw notFound()
+  throw createError({
+    statusCode: 409,
+    statusMessage: 'Conflict',
+    message: 'Brief ini sedang menunggu atau sedang diproses AI.',
+  })
+}
+
+function notFound() {
+  return createError({ statusCode: 404, statusMessage: 'Not Found', message: 'Brief tidak ditemukan.' })
 }
