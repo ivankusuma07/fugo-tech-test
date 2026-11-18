@@ -43,12 +43,13 @@ const steps = computed(() => {
       type="button"
       :disabled="!s.allowed || busy"
       :aria-pressed="s.on"
-      class="inline-flex h-10 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium"
+      class="inline-flex h-10 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition duration-300 enabled:hover:-translate-y-0.5 enabled:active:scale-95"
       :class="[s.cls, { 'cursor-wait opacity-60': busy && s.allowed }]"
       @click="emit('change', s.status)"
     >
       <AppIcon
         v-if="s.done"
+        class="anim-check"
         name="check"
         :size="14"
         :stroke-width="2.5"

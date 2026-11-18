@@ -48,9 +48,10 @@ function failureLabel(error: string | null): string {
       class="flex flex-col gap-3"
     >
       <li
-        v-for="r in runs"
+        v-for="(r, i) in runs"
         :key="r.id"
-        class="flex items-start gap-3"
+        class="anim-rise flex items-start gap-3"
+        :style="{ '--delay': `${Math.min(i, 8) * 50}ms` }"
       >
         <AppIcon
           :name="r.status === 'success' ? 'circle-check' : 'circle-x'"

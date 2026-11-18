@@ -26,8 +26,8 @@ const model = defineModel<T | undefined>()
       :key="opt ?? 'all'"
       type="button"
       :aria-pressed="model === opt"
-      class="h-9 cursor-pointer rounded-full border px-3.5 text-[13px] font-medium"
-      :class="model === opt ? 'border-ink bg-ink text-white' : 'border-line-strong bg-white text-ink hover:border-ink'"
+      class="h-9 cursor-pointer rounded-full border px-3.5 text-[13px] font-medium transition duration-200 active:scale-95"
+      :class="model === opt ? 'border-ink bg-ink text-white shadow-[0_4px_12px_-6px_rgba(23,24,28,0.5)]' : 'border-line-strong bg-white text-ink hover:-translate-y-px hover:border-ink'"
       @click="model = opt"
     >
       {{ opt === undefined ? 'Semua' : (labels?.[opt] ?? opt) }}

@@ -135,6 +135,32 @@ textarea:focus {
   transform: translateY(-6px);
 }
 
+/* Route change (Nuxt pageTransition) */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-leave-to {
+  opacity: 0;
+}
+
+/* Crossfade when a block switches state (e.g. AI processing -> done) */
+.fade-swap-enter-active,
+.fade-swap-leave-active {
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+.fade-swap-enter-from {
+  opacity: 0;
+  transform: translateY(6px) scale(0.99);
+}
+.fade-swap-leave-to {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

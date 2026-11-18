@@ -25,7 +25,7 @@ async function logout() {
       <div class="flex flex-col gap-1">
         <NuxtLink
           to="/admin"
-          class="flex h-11 items-center gap-2.5 rounded-[10px] bg-brand-soft px-3 text-sm font-semibold text-brand-ink"
+          class="group flex h-11 items-center gap-2.5 rounded-[10px] bg-brand-soft px-3 text-sm font-semibold text-brand-ink transition hover:bg-[#E2E5FC]"
         >
           <AppIcon
             name="inbox"
@@ -46,10 +46,13 @@ async function logout() {
         </div>
         <button
           type="button"
-          class="flex h-11 cursor-pointer items-center gap-2 px-1 text-sm text-muted hover:text-ink"
+          class="group flex h-11 cursor-pointer items-center gap-2 px-1 text-sm text-muted transition-colors hover:text-ink"
           @click="logout"
         >
-          <AppIcon name="logout" />
+          <AppIcon
+            name="logout"
+            class="transition-transform duration-200 group-hover:translate-x-0.5"
+          />
           Keluar
         </button>
       </div>

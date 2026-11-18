@@ -69,16 +69,19 @@ async function reprocess() {
   <div class="flex flex-col gap-6">
     <NuxtLink
       to="/admin"
-      class="inline-flex h-8 items-center gap-1.5 self-start text-sm text-muted hover:text-ink"
+      class="group inline-flex h-8 items-center gap-1.5 self-start text-sm text-muted transition-colors hover:text-ink"
     >
-      <AppIcon name="chevron-left" />
+      <AppIcon
+        name="chevron-left"
+        class="transition-transform duration-200 group-hover:-translate-x-0.5"
+      />
       Kembali ke daftar
     </NuxtLink>
 
     <div
       v-if="error"
       role="alert"
-      class="rounded-2xl border border-line bg-white px-6 py-12 text-center"
+      class="anim-rise rounded-2xl border border-line bg-white px-6 py-12 text-center"
     >
       <p class="text-[15px] font-semibold">
         {{ getApiStatus(error) === 404 ? 'Brief tidak ditemukan' : 'Gagal memuat brief' }}
@@ -89,7 +92,7 @@ async function reprocess() {
     </div>
 
     <template v-else-if="brief">
-      <header class="flex flex-col gap-2.5">
+      <header class="anim-rise flex flex-col gap-2.5">
         <div class="flex flex-wrap gap-2">
           <PriorityBadge
             :priority="brief.priority"
@@ -117,7 +120,8 @@ async function reprocess() {
 
       <section
         aria-labelledby="pipe-h"
-        class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-[18px]"
+        class="anim-rise flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-[18px]"
+        style="--delay: 80ms"
       >
         <div class="flex flex-col gap-0.5">
           <h2
@@ -132,7 +136,8 @@ async function reprocess() {
             Status pipeline
           </h2>
           <span
-            class="text-[13px]"
+            :key="pipelineHint"
+            class="anim-slide-down text-[13px]"
             :class="statusError ? 'font-medium text-danger' : 'text-muted'"
             :role="statusError ? 'alert' : undefined"
           >{{ pipelineHint }}</span>
@@ -145,11 +150,14 @@ async function reprocess() {
       </section>
 
       <div class="flex flex-wrap items-start gap-6">
-        <div class="flex min-w-0 flex-[3_1_480px] flex-col gap-6">
+        <div
+          class="anim-rise flex min-w-0 flex-[3_1_480px] flex-col gap-6"
+          style="--delay: 160ms"
+        >
           <p
             v-if="reprocessError"
             role="alert"
-            class="rounded-[10px] border border-[#F7C9C3] bg-danger-soft px-3.5 py-3 text-sm text-danger-ink"
+            class="anim-shake rounded-[10px] border border-[#F7C9C3] bg-danger-soft px-3.5 py-3 text-sm text-danger-ink"
           >
             {{ reprocessError }}
           </p>
@@ -170,7 +178,10 @@ async function reprocess() {
           />
         </div>
 
-        <aside class="flex min-w-0 flex-[2_1_320px] flex-col gap-6">
+        <aside
+          class="anim-rise flex min-w-0 flex-[2_1_320px] flex-col gap-6"
+          style="--delay: 240ms"
+        >
           <BriefFormData
             :name="brief.name"
             :email="brief.email"

@@ -53,7 +53,7 @@ async function copy() {
         <button
           v-if="draft"
           type="button"
-          class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[10px] border border-line-strong bg-white px-3.5 text-sm font-semibold"
+          class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[10px] border border-line-strong bg-white px-3.5 text-sm font-semibold transition hover:border-ink active:scale-95"
           @click="copy"
         >
           <AppIcon :name="copied ? 'check' : 'copy'" />
@@ -62,7 +62,7 @@ async function copy() {
         <button
           type="button"
           :disabled="generating"
-          class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[10px] bg-ink px-3.5 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-70"
+          class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[10px] bg-ink px-3.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand active:translate-y-0 active:scale-95 disabled:translate-y-0 disabled:cursor-wait disabled:opacity-70"
           @click="generate"
         >
           <AppIcon :name="generating ? 'spinner' : (draft ? 'refresh' : 'mail-plus')" />
@@ -73,13 +73,14 @@ async function copy() {
     <p
       v-if="error"
       role="alert"
-      class="text-sm font-medium text-danger"
+      class="anim-shake text-sm font-medium text-danger"
     >
       {{ error }}
     </p>
     <div
       v-if="draft"
-      class="rounded-xl border border-line-soft bg-subtle p-4 text-sm leading-relaxed whitespace-pre-line text-ink-2"
+      :key="draft"
+      class="anim-rise rounded-xl border border-line-soft bg-subtle p-4 text-sm leading-relaxed whitespace-pre-line text-ink-2"
     >
       {{ draft }}
     </div>

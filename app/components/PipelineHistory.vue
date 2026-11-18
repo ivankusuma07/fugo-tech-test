@@ -44,7 +44,8 @@ function tone(status: PipelineStatus) {
       <li
         v-for="(h, i) in entries"
         :key="h.id"
-        class="flex items-stretch gap-3"
+        class="anim-rise flex items-stretch gap-3"
+        :style="{ '--delay': `${Math.min(i, 8) * 50}ms` }"
       >
         <div
           aria-hidden="true"

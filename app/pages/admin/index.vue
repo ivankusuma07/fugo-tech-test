@@ -72,7 +72,7 @@ usePolling(hasRunningAi, refresh, 3000)
 
 <template>
   <div class="flex flex-col gap-6">
-    <div class="flex flex-wrap items-end justify-between gap-4">
+    <div class="anim-rise flex flex-wrap items-end justify-between gap-4">
       <div class="flex flex-col gap-1.5">
         <h1 class="font-display text-[34px] font-bold tracking-[-0.02em]">
           Brief masuk
@@ -84,23 +84,27 @@ usePolling(hasRunningAi, refresh, 3000)
       <a
         href="/"
         target="_blank"
-        class="inline-flex h-11 items-center gap-2 rounded-[10px] border border-line-strong bg-white px-4 text-sm font-semibold"
+        class="group inline-flex h-11 items-center gap-2 rounded-[10px] border border-line-strong bg-white px-4 text-sm font-semibold transition hover:-translate-y-0.5 hover:border-ink hover:shadow-[0_6px_16px_-8px_rgba(23,24,28,0.35)] active:translate-y-0"
       >
-        <AppIcon name="external" />
+        <AppIcon
+          name="external"
+          class="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+        />
         Buka form publik
       </a>
     </div>
 
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
       <div
-        v-for="s in stats"
+        v-for="(s, i) in stats"
         :key="s.label"
-        class="flex min-w-0 flex-col gap-1.5 rounded-[14px] border border-line bg-white px-[18px] py-4"
+        class="anim-rise group flex min-w-0 flex-col gap-1.5 rounded-[14px] border border-line bg-white px-[18px] py-4 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[0_10px_24px_-14px_rgba(23,24,28,0.3)]"
+        :style="{ '--delay': `${60 + i * 70}ms` }"
       >
         <div class="flex items-start justify-between gap-2">
           <span class="text-[13px] text-muted">{{ s.label }}</span>
           <span
-            class="flex size-8 flex-none items-center justify-center rounded-lg"
+            class="flex size-8 flex-none items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
             :class="s.danger && s.value > 0 ? 'bg-danger-soft text-danger' : 'bg-brand-soft text-brand'"
           >
             <AppIcon
@@ -110,15 +114,16 @@ usePolling(hasRunningAi, refresh, 3000)
           </span>
         </div>
         <span
-          class="font-display text-[30px] font-bold tracking-[-0.02em] tabular-nums"
+          class="font-display text-[30px] font-bold tracking-[-0.02em] tabular-nums transition-colors duration-300"
           :class="s.danger && s.value > 0 ? 'text-danger' : 'text-ink'"
-        >{{ s.value }}</span>
+        ><AnimatedNumber :value="s.value" /></span>
       </div>
     </div>
 
     <section
       aria-label="Daftar brief"
-      class="overflow-hidden rounded-2xl border border-line bg-white"
+      class="anim-rise overflow-hidden rounded-2xl border border-line bg-white"
+      style="--delay: 320ms"
     >
       <div class="flex flex-col gap-3 border-b border-line-soft px-5 py-4">
         <FilterChips
@@ -197,9 +202,10 @@ usePolling(hasRunningAi, refresh, 3000)
           </thead>
           <tbody>
             <tr
-              v-for="b in items"
+              v-for="(b, i) in items"
               :key="b.id"
-              class="cursor-pointer border-t border-line-soft hover:bg-subtle"
+              class="anim-rise cursor-pointer border-t border-line-soft transition-colors duration-150 hover:bg-subtle"
+              :style="{ '--delay': `${Math.min(i, 12) * 35}ms` }"
               @click="navigateTo(`/admin/briefs/${b.id}`)"
             >
               <td class="px-5 py-3.5">
@@ -236,7 +242,7 @@ usePolling(hasRunningAi, refresh, 3000)
 
       <div
         v-if="!error && status !== 'pending' && items.length === 0"
-        class="flex flex-col items-center gap-2 px-5 py-12 text-center"
+        class="anim-rise flex flex-col items-center gap-2 px-5 py-12 text-center"
       >
         <span class="mb-1 flex size-12 items-center justify-center rounded-full bg-subtle text-muted">
           <AppIcon
@@ -260,7 +266,7 @@ usePolling(hasRunningAi, refresh, 3000)
             Baris per halaman
             <select
               v-model="perPage"
-              class="h-9 cursor-pointer rounded-lg border border-line-strong bg-white pr-8 pl-3 font-medium text-ink"
+              class="h-9 cursor-pointer rounded-lg border border-line-strong bg-white pr-8 pl-3 font-medium text-ink transition-colors hover:border-ink"
             >
               <option
                 v-for="opt in PAGE_SIZE_OPTIONS"
@@ -277,7 +283,7 @@ usePolling(hasRunningAi, refresh, 3000)
           <button
             type="button"
             :disabled="page <= 1"
-            class="inline-flex h-9 cursor-pointer items-center gap-1 rounded-lg border border-line-strong bg-white px-3 font-medium text-ink disabled:cursor-default disabled:border-line disabled:text-faint"
+            class="inline-flex h-9 cursor-pointer items-center gap-1 rounded-lg border border-line-strong bg-white px-3 font-medium text-ink transition hover:border-ink active:scale-95 disabled:cursor-default disabled:border-line disabled:text-faint disabled:active:scale-100"
             @click="updateQuery({ page: page - 1 })"
           >
             <AppIcon name="chevron-left" />
@@ -286,7 +292,7 @@ usePolling(hasRunningAi, refresh, 3000)
           <button
             type="button"
             :disabled="page >= totalPages"
-            class="inline-flex h-9 cursor-pointer items-center gap-1 rounded-lg border border-line-strong bg-white px-3 font-medium text-ink disabled:cursor-default disabled:border-line disabled:text-faint"
+            class="inline-flex h-9 cursor-pointer items-center gap-1 rounded-lg border border-line-strong bg-white px-3 font-medium text-ink transition hover:border-ink active:scale-95 disabled:cursor-default disabled:border-line disabled:text-faint disabled:active:scale-100"
             @click="updateQuery({ page: page + 1 })"
           >
             Berikutnya

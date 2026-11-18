@@ -4,6 +4,8 @@ export default defineNuxtConfig({
   modules: ['@nuxt/eslint', 'nuxt-auth-utils'],
   devtools: { enabled: true },
   app: {
+    // Styles in app/assets/css/main.css; switched off under prefers-reduced-motion.
+    pageTransition: { name: 'page', mode: 'out-in' },
     head: {
       htmlAttrs: { lang: 'id' },
       title: 'Fugo Brief Inbox',

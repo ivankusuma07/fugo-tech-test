@@ -9,6 +9,10 @@ const password = ref('')
 const showPassword = ref(false)
 const error = ref<string>()
 const submitting = ref(false)
+const errorKey = ref(0)
+watch(error, (v) => {
+  if (v) errorKey.value++
+})
 
 async function login() {
   error.value = undefined
@@ -36,8 +40,12 @@ async function login() {
       <AppLogo
         label="Brief Inbox"
         inverted
+        class="anim-rise"
       />
-      <div class="flex max-w-[460px] flex-col gap-5">
+      <div
+        class="anim-rise flex max-w-[460px] flex-col gap-5"
+        style="--delay: 100ms"
+      >
         <h1 class="font-display text-[34px] leading-[1.05] font-bold tracking-[-0.025em] sm:text-[44px]">
           Semua brief masuk, sudah diringkas dan diprioritaskan.
         </h1>
@@ -47,7 +55,8 @@ async function login() {
       </div>
       <div
         aria-hidden="true"
-        class="flex max-w-[420px] flex-col gap-3 rounded-2xl border border-[#33363E] bg-[#23252B] p-[18px]"
+        class="anim-pop flex max-w-[420px] flex-col gap-3 rounded-2xl border border-[#33363E] bg-[#23252B] p-[18px]"
+        style="--delay: 260ms"
       >
         <div class="flex items-center justify-between gap-3">
           <span class="text-sm font-semibold">PT Sinar Kopi Nusantara</span>
@@ -63,7 +72,8 @@ async function login() {
 
     <main class="flex min-w-0 flex-[1_1_480px] items-center justify-center px-4 py-12 sm:px-8">
       <form
-        class="flex w-full max-w-[400px] flex-col gap-[22px]"
+        class="anim-rise flex w-full max-w-[400px] flex-col gap-[22px]"
+        style="--delay: 120ms"
         @submit.prevent="login"
       >
         <div class="flex flex-col gap-2">
@@ -117,8 +127,9 @@ async function login() {
         </div>
         <div
           v-if="error"
+          :key="errorKey"
           role="alert"
-          class="flex items-start gap-2.5 rounded-[10px] border border-[#F7C9C3] bg-danger-soft px-3.5 py-3 text-sm leading-snug text-danger-ink"
+          class="anim-shake flex items-start gap-2.5 rounded-[10px] border border-[#F7C9C3] bg-danger-soft px-3.5 py-3 text-sm leading-snug text-danger-ink"
         >
           <AppIcon
             name="alert-circle"
@@ -130,7 +141,7 @@ async function login() {
         <button
           type="submit"
           :disabled="submitting"
-          class="flex h-12 cursor-pointer items-center justify-center rounded-xl bg-ink text-[15px] font-semibold text-white disabled:cursor-wait disabled:opacity-70"
+          class="flex h-12 cursor-pointer items-center justify-center rounded-xl bg-ink text-[15px] font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand hover:shadow-[0_10px_24px_-10px_rgba(52,70,212,0.7)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:cursor-wait disabled:opacity-70 disabled:shadow-none"
         >
           {{ submitting ? 'Memeriksa…' : 'Masuk' }}
         </button>
