@@ -65,6 +65,22 @@ npm run test:unit             # pure unit tests only, no database needed
 2. On the app service set `DATABASE_URL=${{Postgres.DATABASE_URL}}`, `NUXT_APP_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `LLM_API_KEY`.
 3. Generate a public domain. Each push to `main` redeploys; migrations run on boot (`scripts/migrate.mjs`), then the server starts. Health check: `/api/health`.
 
+### Deploying (single VPS, Docker)
+
+`docker-compose.prod.yml` runs Postgres, the app and [Caddy](https://caddyserver.com) on one server. Only Caddy is exposed (80/443) and it gets a Let's Encrypt certificate automatically. HTTPS is required: the session cookie is `Secure`, so login does not work over plain HTTP.
+
+```bash
+# on a fresh Ubuntu/Debian VPS, as root
+git clone https://github.com/ivankusuma07/fugo-tech-test.git && cd fugo-tech-test
+sh deploy/setup.sh                 # or: sh deploy/setup.sh brief.example.com
+nano .env                          # add LLM_API_KEY
+docker compose -f docker-compose.prod.yml up -d
+```
+
+`deploy/setup.sh` installs Docker if needed, opens ports 22/80/443 with ufw, writes `.env` from `deploy/env.production.example` with generated secrets (Postgres password, `NUXT_APP_SECRET`, admin password), and starts the stack. Without a domain it uses `<ip-with-dashes>.sslip.io`, which resolves to the server's IP. The admin password is in `.env` on the server.
+
+Update after a push: `git pull && docker compose -f docker-compose.prod.yml up -d --build` (migrations run on start). Logs: `docker compose -f docker-compose.prod.yml logs -f app`.
+
 ---
 
 ## 2. Architecture
