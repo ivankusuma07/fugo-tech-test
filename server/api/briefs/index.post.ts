@@ -1,4 +1,5 @@
 import { BriefInputSchema } from '#shared/schemas/brief-input'
+import { nudgeAiWorker } from '../../services/ai-worker'
 import { createBrief } from '../../services/brief.service'
 
 export default defineEventHandler(async (event) => {
@@ -14,6 +15,9 @@ export default defineEventHandler(async (event) => {
 
   const input = validateOrThrow(BriefInputSchema, body)
   const brief = await createBrief(input)
+
+  // Respond right away; the worker picks the brief up in the background.
+  nudgeAiWorker()
 
   setResponseStatus(event, 201)
   return brief

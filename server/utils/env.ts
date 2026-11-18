@@ -9,7 +9,7 @@ const EnvSchema = z.object({
   ADMIN_EMAIL: z.string().trim().toLowerCase().pipe(z.email()).optional(),
   ADMIN_PASSWORD: z.string().min(8, 'ADMIN_PASSWORD must be at least 8 characters').optional(),
   LLM_BASE_URL: z.url().default('https://api.deepseek.com'),
-  LLM_MODEL: z.string().min(1).default('deepseek-v4-flash'),
+  LLM_MODEL: z.string().min(1).default('deepseek-flash'),
   LLM_API_KEY: z.string().optional(),
   LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(20_000),
   AI_WORKER_INTERVAL_MS: z.coerce.number().int().positive().default(3_000),
