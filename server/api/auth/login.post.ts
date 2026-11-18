@@ -5,7 +5,7 @@ import { users } from '../../db/schema'
 export default defineEventHandler(async (event) => {
   assertRateLimit(event, 'login', 10, 5 * 60_000)
 
-  const { email, password } = await readValidated(event, LoginSchema)
+  const { email, password } = await parseBody(event, LoginSchema)
   const user = await useDb().query.users.findFirst({ where: eq(users.email, email) })
 
   // Same message for unknown email and wrong password.

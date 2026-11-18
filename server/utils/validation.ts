@@ -18,15 +18,15 @@ export function validateOrThrow<S extends z.ZodType>(schema: S, input: unknown):
   return result.data
 }
 
-export async function readValidated<S extends z.ZodType>(event: H3Event, schema: S) {
+export async function parseBody<S extends z.ZodType>(event: H3Event, schema: S) {
   const body = await readBody(event).catch(() => undefined)
   return validateOrThrow(schema, body)
 }
 
-export function getValidatedQuery<S extends z.ZodType>(event: H3Event, schema: S) {
+export function parseQuery<S extends z.ZodType>(event: H3Event, schema: S) {
   return validateOrThrow(schema, getQuery(event))
 }
 
-export function getValidatedParams<S extends z.ZodType>(event: H3Event, schema: S) {
+export function parseParams<S extends z.ZodType>(event: H3Event, schema: S) {
   return validateOrThrow(schema, getRouterParams(event))
 }
