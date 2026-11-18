@@ -160,6 +160,8 @@ async function reprocess() {
             :target-date="brief.targetDate"
             :needs="brief.needs"
           />
+          <PipelineHistory :entries="data!.history" />
+          <AiRunsList :runs="data!.aiRuns" />
         </aside>
       </div>
     </template>
