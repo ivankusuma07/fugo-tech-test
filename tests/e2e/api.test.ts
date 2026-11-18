@@ -14,6 +14,9 @@ Object.assign(process.env, {
   BRIEF_RATE_LIMIT_PER_MINUTE: '1000',
   AI_WORKER_ENABLED: 'false', // keep briefs in `pending`; AI is covered by service tests
   LLM_API_KEY: '',
+  // Turnstile is unit-tested; keep it off here even if .env has real keys.
+  TURNSTILE_SECRET_KEY: '',
+  NUXT_PUBLIC_TURNSTILE_SITE_KEY: '',
 })
 
 await setup({
