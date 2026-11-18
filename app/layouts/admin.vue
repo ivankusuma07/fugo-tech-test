@@ -1,6 +1,11 @@
 <script setup lang="ts">
 const { user, clear } = useUserSession()
 
+// On desktop only <main> scrolls (the sidebar stays put), so reset it when the page changes.
+const mainEl = useTemplateRef<HTMLElement>('main')
+const route = useRoute()
+watch(() => route.path, () => mainEl.value?.scrollTo({ top: 0 }))
+
 async function logout() {
   await $fetch('/api/auth/logout', { method: 'POST' })
   await clear()
@@ -9,10 +14,10 @@ async function logout() {
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col bg-canvas md:flex-row">
+  <div class="flex min-h-screen flex-col bg-canvas md:h-dvh md:min-h-0 md:flex-row md:overflow-hidden">
     <nav
       aria-label="Navigasi utama"
-      class="flex flex-col gap-4 border-b border-line bg-white px-4 py-4 md:w-[248px] md:flex-none md:gap-7 md:border-r md:border-b-0 md:py-6"
+      class="flex flex-col gap-4 border-b border-line bg-white px-4 py-4 md:w-[248px] md:flex-none md:gap-7 md:overflow-y-auto md:border-r md:border-b-0 md:py-6"
     >
       <div class="flex items-center justify-between gap-2.5 px-2">
         <AppLogo label="Brief Inbox" />
@@ -50,7 +55,10 @@ async function logout() {
       </div>
     </nav>
 
-    <main class="flex min-w-0 flex-1 flex-col gap-6 px-4 pt-7 pb-14 sm:px-10">
+    <main
+      ref="main"
+      class="flex min-w-0 flex-1 flex-col gap-6 px-4 pt-7 pb-14 sm:px-10 md:overflow-y-auto"
+    >
       <slot />
     </main>
   </div>

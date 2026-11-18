@@ -48,7 +48,6 @@ async function copy() {
           />
           Draft email balasan
         </h2>
-        <span class="rounded-full bg-brand-soft px-2 py-[3px] text-xs font-semibold text-brand-ink">Nilai tambah</span>
       </div>
       <div class="flex gap-2">
         <button
