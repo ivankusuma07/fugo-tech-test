@@ -3,7 +3,7 @@
 Running log of AI tool usage for the Fugo Creative technical test (Fullstack Developer, AI-Augmented).
 The brief asks for: which tools were used, for what, and at least 2 examples where AI output was corrected or rejected.
 
-> Session 1 was drafted by Claude (claude.ai) from that conversation, then reviewed by me. Session 2 was drafted by Claude Code from the coding session, then reviewed by me.
+> Session 1 was drafted by Claude (claude.ai) from that conversation, then reviewed by me. Sessions 2 and 3 were drafted by Claude Code from those sessions, then reviewed by me.
 
 ---
 
@@ -12,7 +12,7 @@ The brief asks for: which tools were used, for what, and at least 2 examples whe
 | Tool | Used for |
 |---|---|
 | **Claude** (claude.ai, model Claude Opus 5.5) | Brief analysis, stack selection, development plan, UI design (Claude Design canvas), this log |
-| **Claude Code** (CLI agent, model Claude Opus 5.5) | Session 2: writing the code, tests, Docker setup, README, and checking each part by running it (curl, browser, real DeepSeek calls) |
+| **Claude Code** (CLI agent, model Claude Opus 5.5) | Sessions 2–3: writing the code, fixes, deployment, tests, Docker setup, README, and checking each part by running it (curl, browser, real DeepSeek calls) |
 | **DeepSeek Flash** (`deepseek-flash`; the plan said `deepseek-v4-flash`, see C4) | *Not a coding assistant.* This is the LLM **inside the app** that summarizes and prioritizes briefs |
 
 ---
@@ -115,3 +115,64 @@ Tool: **Claude Code** (CLI agent, model Claude Opus 5.5), working in this repo w
 - Server config through one Zod-validated `process.env` reader, keeping the plan's env names.
 - A failed AI re-run clears the previous result, so the list always matches the latest run. Older runs stay in `ai_runs`.
 - Integration and e2e tests run against real Postgres, not a mocked database. Only the LLM is mocked.
+
+---
+
+## Session 3 — Fixes, deployment & polish (Wed 18 Nov 2026, 14:18–16:49 WIB)
+
+Tool: **Claude Code** (CLI agent, model Claude Opus 5.5), same repo. Times are commit times.
+
+### What AI produced
+
+| Time (WIB) | My request | AI output | Outcome |
+|---|---|---|---|
+| 14:18 | "I can go to admin page without login, please fix it" | Found the cause: a sealed session cookie with no expiry, still valid after the user row was gone. Added an 8-hour `maxAge`, a DB check of the session user on every admin API call and session fetch, and a `$api` client that sends you to `/login` on any 401 | Accepted after correction C9. e2e tests for cookie `Max-Age`, a stale user, and an SSR render |
+| 14:18 | Add an icon library like Lucide | `AppIcon` wrapper over `@lucide/vue` (the maintained package; `lucide-vue-next` is deprecated), icons across the form, admin and login | Accepted |
+| 14:36 | Remove "Nilai tambah" from the email draft; pin the sidebar footer, only the main page scrolls | Viewport-height sidebar layout with its own scroll; main content scrolls separately and resets to top on route change | Accepted. Checked in Chrome at several heights |
+| 14:48 | Rows per page 5/10/25/50/100/All at the bottom, pipeline status filter at the top | Shared Zod schema for both params, kept in the URL; `listBriefs` skips `LIMIT` for "All"; index on `pipeline_status` (migration `0001`) | Accepted after correction C10 |
+| 15:05–15:18 | Deploy: "VPS only setup"; generate a dedicated SSH key | Dedicated `fugo_vps_ed25519` key; standalone stack (Postgres + app + Caddy), then a version for the server's existing shared edge Caddy | Accepted after correction C13. The LLM key was copied from local `.env` over SSH stdin, never written to the repo |
+| 15:21–15:28 | Change the live URL; "Hex, joined with a dash" | New host `brief-b9939f95.sslip.io`; the old host 301-redirects | Accepted. Both hosts checked with curl |
+| 15:49 | Integrate the existing Cloudflare Turnstile widget (site key given), place it on the form | Explicit-render widget on the form; server `siteverify` with a 10 s timeout that fails closed, plus action and optional hostname checks; 11 unit tests | Accepted after corrections C11 and C12 |
+| 16:10–16:49 | Animations on the form, admin and login pages; login cards that auto-change like a reference site | Staggered entrances, form↔success transition, count-up stats, AI card crossfade, rotating headline word, an auto-cycling deck of sample brief cards. All motion is off under `prefers-reduced-motion` | Accepted. Clicked through in Chrome on a local production build |
+| 15:05–16:49 | "push it" / "push and deploy" (several times) | Pushed `main`; deployed with `git archive` over SSH and `docker compose up --build` on the server | Done. Health check, then curl checks of the live pages after each deploy |
+
+### Corrections and rejections
+
+**C9. The first fix for the admin redirect broke server-side rendering**
+- **AI output:** the new `$api` client (`$fetch.create`) used for admin data.
+- **How it was caught:** checking the admin list in Chrome after the fix. A fully loaded page showed "Silakan login" while logged in. During SSR, a custom `$fetch` instance doesn't forward the browser's cookie, so the server-side request had no session.
+- **Fix:** forward the `cookie` header with `useRequestHeaders(['cookie'])` during SSR. Added an e2e test that renders `/admin` with a session and asserts real data, not the login prompt.
+
+**C10. "All rows" done with a fake limit**
+- **AI output:** "All" mapped to `LIMIT Number.MAX_SAFE_INTEGER`.
+- **How it was caught:** review before commit. It works, but it's a hack that hides the intent, and the number goes into the SQL.
+- **Fix:** the schema turns `all` into `null`, and `listBriefs` adds `LIMIT`/`OFFSET` only when a page size is set.
+
+**C11. Turnstile check rejected Cloudflare's test keys**
+- **AI output:** server verification required `action === 'brief'` on every response.
+- **How it was caught:** running against Cloudflare's always-pass test secret. Test-key responses carry no `action`, so valid tokens were refused with 403.
+- **Fix:** when `metadata.result_with_testing_key` is set, skip the action and hostname checks. A unit test covers it, and the real key was then verified live: a fresh token returns 201 and a replayed token returns 403.
+
+**C12. Real Turnstile secret in `.env` broke 5 e2e tests**
+- **AI output:** the e2e suite inherited the local `.env`.
+- **How it was caught:** the test run after adding the real secret locally. The suite can't solve a real challenge, so brief submissions failed.
+- **Fix:** the e2e setup blanks `TURNSTILE_SECRET_KEY` and `NUXT_PUBLIC_TURNSTILE_SITE_KEY`. Turnstile behavior is covered by the unit tests instead.
+
+**C13. Production stack clashed with the server's existing proxy**
+- **AI output:** a standalone compose stack with its own Caddy on ports 80/443.
+- **How it was caught:** starting it on the server. Ports 80/443 already belonged to a shared edge Caddy serving other projects.
+- **Fix:** followed the server's convention instead: one `sites/fugo.caddy` file and the app on the external `edge` network with a private database. The other sites on the server were checked afterwards and still respond.
+
+### Checked instead of trusted
+- **Auth fix.** Tested with a deleted user: the old cookie now gets 401, the session is cleared, and the page redirects to login.
+- **Turnstile on the live site.** Real token → 201, the same token replayed → 403.
+- **Login page.** Viewed on `127.0.0.1` against a local build, so my logged-in `localhost` session was untouched.
+- **Test data.** Briefs and the temporary admin used for browser checks were deleted afterwards.
+- **Every commit:** lint, typecheck and the full test suite (100 tests) pass.
+
+### Decisions I made from AI suggestions
+- Single VPS with Docker instead of Netlify + a separate backend, reusing the server's shared Caddy.
+- A hex `sslip.io` host instead of one that shows the server IP.
+- Turnstile fails closed: if Cloudflare can't be reached, the submission is refused.
+- `@lucide/vue` pinned to an exact version.
+- Motion is decorative only and fully disabled for users who prefer reduced motion.
