@@ -1,0 +1,1 @@
+CREATE INDEX "briefs_pipeline_status_idx" ON "briefs" USING btree ("pipeline_status");

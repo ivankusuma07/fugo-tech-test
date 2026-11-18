@@ -36,40 +36,46 @@ export async function createBrief(input: BriefInput) {
 export interface BriefListFilters {
   priority?: Priority
   category?: ServiceCategory
+  pipeline?: PipelineStatus
   page: number
-  pageSize: number
+  /** null = no limit ("all" rows). */
+  pageSize: number | null
 }
 
-/** Newest first, optionally filtered by priority and/or category (both indexed columns). */
-export async function listBriefs({ priority, category, page, pageSize }: BriefListFilters) {
+/** Newest first, optionally filtered by priority, category and pipeline status. */
+export async function listBriefs({ priority, category, pipeline, page, pageSize }: BriefListFilters) {
   const db = useDb()
   const where = and(
     priority ? eq(briefs.priority, priority) : undefined,
     category ? eq(briefs.serviceCategory, category) : undefined,
+    pipeline ? eq(briefs.pipelineStatus, pipeline) : undefined,
   )
+  // With no limit there is a single page.
+  const currentPage = pageSize === null ? 1 : page
+
+  const itemsQuery = db
+    .select({
+      id: briefs.id,
+      number: briefs.number,
+      name: briefs.name,
+      companyName: briefs.companyName,
+      serviceCategory: briefs.serviceCategory,
+      priority: briefs.priority,
+      aiStatus: briefs.aiStatus,
+      pipelineStatus: briefs.pipelineStatus,
+      createdAt: briefs.createdAt,
+    })
+    .from(briefs)
+    .where(where)
+    .orderBy(desc(briefs.createdAt))
+    .$dynamic()
 
   const [items, [{ total } = { total: 0 }]] = await Promise.all([
-    db
-      .select({
-        id: briefs.id,
-        number: briefs.number,
-        name: briefs.name,
-        companyName: briefs.companyName,
-        serviceCategory: briefs.serviceCategory,
-        priority: briefs.priority,
-        aiStatus: briefs.aiStatus,
-        pipelineStatus: briefs.pipelineStatus,
-        createdAt: briefs.createdAt,
-      })
-      .from(briefs)
-      .where(where)
-      .orderBy(desc(briefs.createdAt))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize),
+    pageSize === null ? itemsQuery : itemsQuery.limit(pageSize).offset((currentPage - 1) * pageSize),
     db.select({ total: count() }).from(briefs).where(where),
   ])
 
-  return { items, total, page, pageSize }
+  return { items, total, page: currentPage, pageSize }
 }
 
 /** Headline numbers for the dashboard, across all briefs (not affected by filters). */

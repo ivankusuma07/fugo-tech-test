@@ -2,7 +2,8 @@
 /** A row of single-select chips. `undefined` means "Semua" (no filter). */
 import type { IconName } from './AppIcon.vue'
 
-defineProps<{ label: string, options: readonly T[], icon?: IconName }>()
+/** `labels` maps option values to display text (defaults to the value itself). */
+defineProps<{ label: string, options: readonly T[], icon?: IconName, labels?: Partial<Record<T, string>> }>()
 const model = defineModel<T | undefined>()
 </script>
 
@@ -29,7 +30,7 @@ const model = defineModel<T | undefined>()
       :class="model === opt ? 'border-ink bg-ink text-white' : 'border-line-strong bg-white text-ink hover:border-ink'"
       @click="model = opt"
     >
-      {{ opt ?? 'Semua' }}
+      {{ opt === undefined ? 'Semua' : (labels?.[opt] ?? opt) }}
     </button>
   </div>
 </template>

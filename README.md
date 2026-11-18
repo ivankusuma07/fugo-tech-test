@@ -134,7 +134,7 @@ All errors share one shape: `{ statusCode, message, data?: { fieldErrors: { fiel
 | POST | `/api/briefs` | public, rate-limited, honeypot | `201 { id, number }` / `400` / `429` |
 | POST | `/api/auth/login` | public, rate-limited | `200` + session cookie / `401` |
 | POST | `/api/auth/logout` | | `204` |
-| GET | `/api/admin/briefs?priority=&category=&page=&pageSize=` | admin | `{ items, total, page, pageSize, stats }` |
+| GET | `/api/admin/briefs?priority=&category=&pipeline=&page=&pageSize=` | admin | `{ items, total, page, pageSize, stats }`; `pageSize` is 5, 10 (default), 25, 50, 100 or `all` (returned as `null`) |
 | GET | `/api/admin/briefs/:id` | admin | `{ brief, aiRuns, history }` / `404` |
 | PATCH | `/api/admin/briefs/:id/status` | admin | `{ pipelineStatus }` → `200 { pipelineStatus, historyEntry }` / `409` invalid jump |
 | POST | `/api/admin/briefs/:id/reprocess` | admin | `202` / `409` while pending or processing |

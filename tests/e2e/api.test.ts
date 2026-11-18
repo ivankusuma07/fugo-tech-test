@@ -136,9 +136,24 @@ describe('admin brief endpoints', () => {
     expect(high.items.map(i => i.id)).toEqual([id])
   })
 
-  it('rejects an invalid filter value with 400', async () => {
-    const res = await fetch('/api/admin/briefs?priority=Urgent', { headers: { cookie } })
+  it.each([
+    'priority=Urgent',
+    'pipeline=archived',
+    'pageSize=7',
+    'pageSize=1000',
+  ])('rejects an invalid filter value with 400 (%s)', async (qs) => {
+    const res = await fetch(`/api/admin/briefs?${qs}`, { headers: { cookie } })
     expect(res.status).toBe(400)
+  })
+
+  it('accepts pageSize=all and a pipeline filter', async () => {
+    const res = await $fetch<{ pageSize: number | null, page: number, items: { pipelineStatus: string }[] }>(
+      '/api/admin/briefs?pageSize=all&pipeline=new',
+      { headers: { cookie } },
+    )
+    expect(res.pageSize).toBeNull()
+    expect(res.page).toBe(1)
+    expect(res.items.every(i => i.pipelineStatus === 'new')).toBe(true)
   })
 
   it('enforces forward-only status changes and records history', async () => {

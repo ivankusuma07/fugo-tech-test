@@ -109,6 +109,28 @@ describe('listBriefs', () => {
     const both = await listBriefs({ priority: 'High', category: 'Website', page: 1, pageSize: 20 })
     expect(both.items.map(i => i.companyName)).toEqual(['A'])
   })
+
+  it('filters by pipeline status', async () => {
+    const a = await createBrief({ ...input, companyName: 'A' })
+    await createBrief({ ...input, companyName: 'B' })
+    await db.update(briefs).set({ pipelineStatus: 'contacted' }).where(eq(briefs.id, a.id))
+
+    const contacted = await listBriefs({ pipeline: 'contacted', page: 1, pageSize: 20 })
+    expect(contacted.items.map(i => i.companyName)).toEqual(['A'])
+    expect((await listBriefs({ pipeline: 'new', page: 1, pageSize: 20 })).total).toBe(1)
+  })
+
+  it('pages with a limit, and returns every row on one page when pageSize is null', async () => {
+    for (const name of ['A', 'B', 'C', 'D', 'E', 'F', 'G']) await createBrief({ ...input, companyName: name })
+
+    const second = await listBriefs({ page: 2, pageSize: 5 })
+    expect(second.items.map(i => i.companyName)).toEqual(['B', 'A'])
+    expect(second.total).toBe(7)
+
+    const all = await listBriefs({ page: 3, pageSize: null })
+    expect(all.items).toHaveLength(7)
+    expect(all.page).toBe(1)
+  })
 })
 
 describe('requeueBrief', () => {

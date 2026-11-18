@@ -81,6 +81,7 @@ export const briefs = pgTable(
     index('briefs_priority_idx').on(t.priority),
     index('briefs_service_category_idx').on(t.serviceCategory),
     index('briefs_ai_status_idx').on(t.aiStatus),
+    index('briefs_pipeline_status_idx').on(t.pipelineStatus),
   ],
 )
 

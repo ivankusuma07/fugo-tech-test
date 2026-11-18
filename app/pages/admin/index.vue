@@ -1,5 +1,16 @@
 <script setup lang="ts">
-import { PRIORITIES, SERVICE_CATEGORIES, type Priority, type ServiceCategory } from '#shared/constants'
+import {
+  DEFAULT_PAGE_SIZE,
+  PAGE_SIZE_OPTIONS,
+  PIPELINE_LABELS,
+  PIPELINE_STATUSES,
+  PRIORITIES,
+  SERVICE_CATEGORIES,
+  type PageSizeOption,
+  type PipelineStatus,
+  type Priority,
+  type ServiceCategory,
+} from '#shared/constants'
 
 definePageMeta({ layout: 'admin' })
 useHead({ title: 'Brief masuk — Brief Inbox' })
@@ -21,6 +32,14 @@ const category = computed({
   get: () => pickFromQuery<ServiceCategory>(route.query.category, SERVICE_CATEGORIES),
   set: v => updateQuery({ category: v, page: undefined }),
 })
+const pipeline = computed({
+  get: () => pickFromQuery<PipelineStatus>(route.query.pipeline, PIPELINE_STATUSES),
+  set: v => updateQuery({ pipeline: v, page: undefined }),
+})
+const perPage = computed({
+  get: () => pickFromQuery<PageSizeOption>(route.query.perPage, PAGE_SIZE_OPTIONS) ?? DEFAULT_PAGE_SIZE,
+  set: v => updateQuery({ perPage: v === DEFAULT_PAGE_SIZE ? undefined : v, page: undefined }),
+})
 const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 
 function updateQuery(patch: Record<string, string | number | undefined>) {
@@ -28,7 +47,7 @@ function updateQuery(patch: Record<string, string | number | undefined>) {
 }
 
 const { data, error, refresh, status } = await useFetch('/api/admin/briefs', {
-  query: { priority, category, page },
+  query: { priority, category, pipeline, page, pageSize: perPage },
   $fetch: $api,
 })
 
@@ -40,7 +59,11 @@ const stats = computed(() => [
 ])
 
 const items = computed(() => data.value?.items ?? [])
-const totalPages = computed(() => (data.value ? Math.max(1, Math.ceil(data.value.total / data.value.pageSize)) : 1))
+const totalPages = computed(() => {
+  if (!data.value || data.value.pageSize === null) return 1
+  return Math.max(1, Math.ceil(data.value.total / data.value.pageSize))
+})
+const hasFilters = computed(() => Boolean(priority.value || category.value || pipeline.value))
 
 // Keep the list fresh while any visible brief is still waiting for the AI.
 const hasRunningAi = computed(() => items.value.some(b => b.aiStatus === 'pending' || b.aiStatus === 'processing'))
@@ -109,6 +132,13 @@ usePolling(hasRunningAi, refresh, 3000)
           label="Kategori"
           icon="tag"
           :options="SERVICE_CATEGORIES"
+        />
+        <FilterChips
+          v-model="pipeline"
+          label="Pipeline"
+          icon="workflow"
+          :options="PIPELINE_STATUSES"
+          :labels="PIPELINE_LABELS"
         />
       </div>
 
@@ -210,13 +240,13 @@ usePolling(hasRunningAi, refresh, 3000)
       >
         <span class="mb-1 flex size-12 items-center justify-center rounded-full bg-subtle text-muted">
           <AppIcon
-            :name="priority || category ? 'filter' : 'inbox'"
+            :name="hasFilters ? 'filter' : 'inbox'"
             :size="22"
           />
         </span>
-        <template v-if="priority || category">
+        <template v-if="hasFilters">
           <span class="text-[15px] font-semibold">Tidak ada brief untuk filter ini</span>
-          <span class="text-sm text-muted">Coba ubah prioritas atau kategori.</span>
+          <span class="text-sm text-muted">Coba ubah prioritas, kategori, atau status pipeline.</span>
         </template>
         <template v-else>
           <span class="text-[15px] font-semibold">Belum ada brief masuk</span>
@@ -225,7 +255,24 @@ usePolling(hasRunningAi, refresh, 3000)
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-5 py-3.5 text-[13px] text-muted">
-        <span>Menampilkan {{ items.length }} dari {{ data?.total ?? 0 }} brief</span>
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <label class="flex items-center gap-2">
+            Baris per halaman
+            <select
+              v-model="perPage"
+              class="h-9 cursor-pointer rounded-lg border border-line-strong bg-white pr-8 pl-3 font-medium text-ink"
+            >
+              <option
+                v-for="opt in PAGE_SIZE_OPTIONS"
+                :key="opt"
+                :value="opt"
+              >
+                {{ opt === 'all' ? 'Semua' : opt }}
+              </option>
+            </select>
+          </label>
+          <span>Menampilkan {{ items.length }} dari {{ data?.total ?? 0 }} brief<template v-if="totalPages > 1"> · Halaman {{ page }} dari {{ totalPages }}</template></span>
+        </div>
         <div class="flex gap-2">
           <button
             type="button"

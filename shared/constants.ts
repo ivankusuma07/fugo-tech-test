@@ -69,4 +69,7 @@ export function canTransition(from: PipelineStatus, to: PipelineStatus): boolean
 export const BUSINESS_TIMEZONE = 'Asia/Jakarta'
 
 export const NEEDS_MAX_LENGTH = 5000
-export const ADMIN_PAGE_SIZE = 20
+/** Rows-per-page choices in the admin list; "all" removes the limit. */
+export const PAGE_SIZE_OPTIONS = ['5', '10', '25', '50', '100', 'all'] as const
+export type PageSizeOption = (typeof PAGE_SIZE_OPTIONS)[number]
+export const DEFAULT_PAGE_SIZE: PageSizeOption = '10'
